@@ -1,5 +1,6 @@
 package il.co.iai.plugins;
 
+import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import com.flexicore.model.MediaToBundle;
 import com.flexicore.model.Result;
 import com.flexicore.model.User;
 import com.flexicore.model.media.Media;
+import com.flexicore.model.rendering.presets.VideoMetadata;
 import com.flexicore.service.BaseclassService;
 import com.flexicore.service.CategoryService;
 import com.flexicore.service.MediaService;
@@ -27,6 +29,8 @@ import il.co.iai.capture.CaptureJob;
 import il.co.iai.capture.CaptureRunner;
 import il.co.iai.capture.Config;
 import il.co.iai.interfaces.StreamCapturePlugin;
+import tv.goopi.plugin.VideoInfo;
+import tv.goopi.plugin.VideoSnapShot;
 
 @PluginInfo(version = 1, autoInstansiate = true)
 public class CapturePlugin implements StreamCapturePlugin {
@@ -60,6 +64,22 @@ public class CapturePlugin implements StreamCapturePlugin {
 				fileResource.Init();
 				fileResource.setFullPath(captureJob.getFilePath());
 				fileResource.setType(new FileType(DefaultFileTypes.VIDEO.name()));
+				FileResource snapshot =null;
+				try {
+					VideoMetadata m=VideoInfo.getVideoMetadata(fileResource.getFullPath(), job);
+					fileResource.setMetaData(m);
+					String snap=VideoSnapShot.Create(fileResource.getFullPath(), "png", user);
+					snapshot=FileResource.s().Create("capture snap", user);
+
+					snapshot.Init();
+					snapshot.setFullPath(snap);
+					snapshot.setType(new FileType(DefaultFileTypes.IMAGE.name()));
+					job.addObjectToPresist(snapshot);
+					job.addObjectToPresist(m);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				MediaToBundle link = MediaService.staticAddNewFileResourceToMedia(media, fileResource, "capture");
 				media.setPrimaryFileResourceBundle(link.getRightside());
 				link.getRightside().setType(new FileType(DefaultFileTypes.VIDEO.name()));
@@ -70,6 +90,9 @@ public class CapturePlugin implements StreamCapturePlugin {
 					if(id!=null){
 						categoryService.connectCategory(media.getId(), id, user);
 					}
+				}
+				if(snapshot!=null){
+					media.setSnapshotResourceId(snapshot.getId());
 				}
 				job.addObjectToPresist(media);
 				Result res= Result.s().Create("result", user);

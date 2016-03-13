@@ -77,6 +77,12 @@
 			<artifactId>jaxrs-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>tv.goopi</groupId>
+			<artifactId>video-plugin-analyzer</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
 
 
 
