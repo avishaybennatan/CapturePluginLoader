@@ -1,5 +1,6 @@
 package il.co.iai.plugins;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -58,7 +59,11 @@ public class CapturePlugin implements StreamCapturePlugin {
 		if (job.getJobInformation().getJobInfo() instanceof CaptureJob) {
 			try {
 				CaptureJob captureJob = (CaptureJob) job.getJobInformation().getJobInfo();
-				captureJob.setFilePath(VideoRemux.remux(captureJob.getFilePath(), Config.OUTPUT_FOLDER, "mp4"));
+				String remuxed=VideoRemux.remux(captureJob.getFilePath(), Config.OUTPUT_FOLDER, "mp4");
+				if(new File(remuxed).exists()){
+					new File(captureJob.getFilePath()).delete();
+					captureJob.setFilePath(remuxed);
+				}
 				User user=baseclassService.find(User.class, "UEKbB6XlQhKOtjziJoUQ8w");
 				Tenant tennant=baseclassService.find(Tenant.class, "jgV8M9d0Qd6owkPPFrbWIQ");
 				Operation operation=baseclassService.find(Operation.class, "818c9d6973784a16b488c6");
