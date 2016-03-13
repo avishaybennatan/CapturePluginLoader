@@ -16,10 +16,13 @@ import com.flexicore.model.FileResource;
 import com.flexicore.model.FileType;
 import com.flexicore.model.Job;
 import com.flexicore.model.MediaToBundle;
+import com.flexicore.model.Operation;
 import com.flexicore.model.Result;
+import com.flexicore.model.Tenant;
 import com.flexicore.model.User;
 import com.flexicore.model.media.Media;
 import com.flexicore.model.rendering.presets.VideoMetadata;
+import com.flexicore.security.SecurityContext;
 import com.flexicore.service.BaseclassService;
 import com.flexicore.service.CategoryService;
 import com.flexicore.service.MediaService;
@@ -47,14 +50,21 @@ public class CapturePlugin implements StreamCapturePlugin {
 	@Inject
 	private MediaService mediaService;
 	@Inject
-	private BaseclassService userService;
+	private BaseclassService baseclassService;
 
 	@Override
 	public void process(Job job) {
 		if (job.getJobInformation().getJobInfo() instanceof CaptureJob) {
 			try {
 				CaptureJob captureJob = (CaptureJob) job.getJobInformation().getJobInfo();
-				User user = userService.find(User.class,"UEKbB6XlQhKOtjziJoUQ8w");
+				User user=baseclassService.find(User.class, "UEKbB6XlQhKOtjziJoUQ8w");
+				Tenant tennant=baseclassService.find(Tenant.class, "jgV8M9d0Qd6owkPPFrbWIQ");
+				Operation operation=baseclassService.find(Operation.class, "818c9d6973784a16b488c6");
+				SecurityContext sec= new SecurityContext();
+				sec.setUser(user);
+				sec.setTenant(tennant);
+				sec.setOperation(operation);
+				job.setSecurityContext(sec);
 				Media media = Media.s().Create("capture media", user);
 				media.Init();
 				FileResource fileResource;
@@ -77,8 +87,7 @@ public class CapturePlugin implements StreamCapturePlugin {
 					job.addObjectToPresist(snapshot);
 					job.addObjectToPresist(m);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.severe("unable to get info");
 				}
 				MediaToBundle link = MediaService.staticAddNewFileResourceToMedia(media, fileResource, "capture");
 				media.setPrimaryFileResourceBundle(link.getRightside());
