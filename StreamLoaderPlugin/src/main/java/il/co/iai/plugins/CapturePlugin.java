@@ -33,6 +33,7 @@ import il.co.iai.capture.CaptureRunner;
 import il.co.iai.capture.Config;
 import il.co.iai.interfaces.StreamCapturePlugin;
 import tv.goopi.plugin.VideoInfo;
+import tv.goopi.plugin.VideoRemux;
 import tv.goopi.plugin.VideoSnapShot;
 
 @PluginInfo(version = 1, autoInstansiate = true)
@@ -57,6 +58,7 @@ public class CapturePlugin implements StreamCapturePlugin {
 		if (job.getJobInformation().getJobInfo() instanceof CaptureJob) {
 			try {
 				CaptureJob captureJob = (CaptureJob) job.getJobInformation().getJobInfo();
+				captureJob.setFilePath(VideoRemux.remux(captureJob.getFilePath(), Config.OUTPUT_FOLDER, "mp4"));
 				User user=baseclassService.find(User.class, "UEKbB6XlQhKOtjziJoUQ8w");
 				Tenant tennant=baseclassService.find(Tenant.class, "jgV8M9d0Qd6owkPPFrbWIQ");
 				Operation operation=baseclassService.find(Operation.class, "818c9d6973784a16b488c6");
@@ -108,7 +110,7 @@ public class CapturePlugin implements StreamCapturePlugin {
 				res.Init();
 				res.setSucceeded(true);
 				job.getJobInformation().setCurrrentPhaseResult(res);
-			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IOException e) {
 				logger.log(Level.SEVERE, "unable to instanciate", e);
 			}
 
