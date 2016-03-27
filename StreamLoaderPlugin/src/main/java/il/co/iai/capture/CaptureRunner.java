@@ -41,7 +41,7 @@ public class CaptureRunner implements Runnable, ServicePlugin {
 			channel.configureBlocking( false );
 			 DatagramSocket datagramSocket = channel.socket();
 			 datagramSocket.setReuseAddress(true);
-			 datagramSocket.setReceiveBufferSize(1024*1024);
+			 datagramSocket.setReceiveBufferSize(1024*1024*10); //TODO: check what is needed
 			 InetSocketAddress addr=new InetSocketAddress(9999);
 			 datagramSocket.bind(addr);
 			
